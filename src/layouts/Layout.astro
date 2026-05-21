@@ -1,0 +1,71 @@
+---
+import SEOHead from '../components/SEOHead.astro';
+import { siteConfig } from '@redcms/core/siteConfig';
+import '../styles/global.css';
+
+export interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  noindex?: boolean;
+  nofollow?: boolean;
+  canonical?: string;
+}
+
+const props = Astro.props;
+
+const siteName = siteConfig.siteName || 'Mon Site';
+const navLinks = [
+  { label: 'Accueil', url: '/' },
+  { label: 'Produits', url: '/produits' },
+  { label: 'Contact', url: '#contact' },
+];
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <SEOHead {...props} />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-container">
+        <a href="/" class="header-logo">
+          <span class="logo-text">{siteName}</span>
+        </a>
+        <nav class="header-nav">
+          {navLinks.map(link => (
+            <a href={link.url} class="nav-link">{link.label}</a>
+          ))}
+        </nav>
+        <a href="/admin" class="header-cta">Admin</a>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-container">
+        <div class="footer-main">
+          <div class="footer-brand">
+            <span class="footer-logo">{siteName}</span>
+            <p class="footer-description">Un CMS moderne et simple pour gérer votre contenu.</p>
+          </div>
+          <nav class="footer-nav">
+            {navLinks.map(link => (
+              <a href={link.url} class="footer-link">{link.label}</a>
+            ))}
+          </nav>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; {new Date().getFullYear()} {siteName}. Tous droits réservés.</p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

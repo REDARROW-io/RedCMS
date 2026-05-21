@@ -1,0 +1,21 @@
+---
+import '@redcms/admin/styles/admin.css';
+import { AdminLayout, ArticleEditor } from '@redcms/admin/components';
+
+const { id } = Astro.params;
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Modifier l'article | RedCMS</title>
+  </head>
+  <body>
+    <AdminLayout client:load currentPage="articles">
+      <ArticleEditor client:load articleId={id} />
+    </AdminLayout>
+  </body>
+</html>

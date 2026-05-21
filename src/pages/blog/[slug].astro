@@ -1,0 +1,263 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getAllArticles, getArticleBySlug } from '@redcms/core/loader';
+import { generateArticleSchema } from '@redcms/core/seo';
+import { siteConfig } from '@redcms/core/siteConfig';
+
+export async function getStaticPaths() {
+  const articles = await getAllArticles();
+  return articles.map((article) => ({
+    params: { slug: article.slug },
+    props: { article },
+  }));
+}
+
+const { slug } = Astro.params;
+const { article } = Astro.props;
+
+const articleData = article || await getArticleBySlug(slug!);
+
+if (!articleData) {
+  return Astro.redirect('/404');
+}
+
+const articleSchema = generateArticleSchema({
+  title: articleData.title,
+  description: articleData.excerpt || articleData.seo?.metaDescription || '',
+  image: articleData.featuredImage || articleData.seo?.ogImage,
+  author: articleData.author?.name,
+  publishedAt: articleData.publishedAt,
+  updatedAt: articleData.updatedAt,
+  url: `${siteConfig.siteUrl}/blog/${articleData.slug}`,
+});
+---
+
+<Layout
+  title={articleData.seo?.metaTitle || articleData.title}
+  description={articleData.seo?.metaDescription || articleData.excerpt}
+  ogImage={articleData.seo?.ogImage || articleData.featuredImage}
+  article={{
+    publishedAt: articleData.publishedAt,
+    author: articleData.author?.name,
+  }}
+>
+  <article class="article-page">
+    <header class="article-header">
+      {articleData.category && (
+        <a href={`/blog/categorie/${articleData.category.slug}`} class="category">
+          {articleData.category.name}
+        </a>
+      )}
+      
+      <h1>{articleData.title}</h1>
+      
+      <div class="article-meta">
+        {articleData.author && (
+          <div class="author">
+            {articleData.author.avatar && (
+              <img src={articleData.author.avatar} alt={articleData.author.name} class="author-avatar" />
+            )}
+            <span>{articleData.author.name}</span>
+          </div>
+        )}
+        
+        {articleData.publishedAt && (
+          <time datetime={articleData.publishedAt}>
+            {new Date(articleData.publishedAt).toLocaleDateString('fr-FR', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric'
+            })}
+          </time>
+        )}
+      </div>
+    </header>
+    
+    {articleData.featuredImage && (
+      <div class="featured-image">
+        <img src={articleData.featuredImage} alt={articleData.title} />
+      </div>
+    )}
+    
+    <div class="article-content prose" set:html={articleData.content} />
+    
+    {articleData.tags && articleData.tags.length > 0 && (
+      <footer class="article-tags">
+        {articleData.tags.map((tag) => (
+          <span class="tag">{tag}</span>
+        ))}
+      </footer>
+    )}
+    
+    {articleData.author?.bio && (
+      <div class="author-bio">
+        {articleData.author.avatar && (
+          <img src={articleData.author.avatar} alt={articleData.author.name} />
+        )}
+        <div>
+          <strong>{articleData.author.name}</strong>
+          <p>{articleData.author.bio}</p>
+        </div>
+      </div>
+    )}
+  </article>
+  
+  <Fragment set:html={articleSchema} />
+</Layout>
+
+<style>
+  .article-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+  }
+
+  .article-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .category {
+    display: inline-block;
+    background: #f3f4f6;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #1a1a1a;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+  }
+
+  .article-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    color: #666;
+  }
+
+  .author {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .author-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .featured-image {
+    margin: 2rem -2rem;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+  }
+
+  .featured-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .article-content {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: #333;
+  }
+
+  .article-content :global(h2) {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 2.5rem 0 1rem;
+  }
+
+  .article-content :global(h3) {
+    font-size: 1.375rem;
+    font-weight: 600;
+    margin: 2rem 0 0.75rem;
+  }
+
+  .article-content :global(p) {
+    margin-bottom: 1.5rem;
+  }
+
+  .article-content :global(img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 2rem 0;
+  }
+
+  .article-content :global(blockquote) {
+    border-left: 4px solid #1a1a1a;
+    padding-left: 1.5rem;
+    margin: 2rem 0;
+    font-style: italic;
+    color: #666;
+  }
+
+  .article-content :global(ul), .article-content :global(ol) {
+    margin: 1.5rem 0;
+    padding-left: 1.5rem;
+  }
+
+  .article-content :global(li) {
+    margin-bottom: 0.5rem;
+  }
+
+  .article-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .tag {
+    background: #f3f4f6;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    color: #666;
+  }
+
+  .author-bio {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 3rem;
+    padding: 2rem;
+    background: #f9fafb;
+    border-radius: 12px;
+  }
+
+  .author-bio img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .author-bio strong {
+    display: block;
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .author-bio p {
+    color: #666;
+    line-height: 1.6;
+    margin: 0;
+  }
+</style>

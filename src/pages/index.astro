@@ -1,0 +1,761 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getPageContent } from '@redcms/core/content';
+
+const pageData = await getPageContent('accueil');
+const content = pageData?.content || {};
+
+// Mode édition - vérifier le paramètre URL
+const url = new URL(Astro.request.url);
+const isEditMode = url.searchParams.get('edit') === 'true';
+
+const hero = {
+  surtitre: content.hero_surtitre || 'Bienvenue',
+  titre: content.hero_titre || 'Votre site avec RedCMS',
+  description: content.hero_description || 'Un CMS moderne et simple pour gérer votre contenu',
+  image: content.hero_image || 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80',
+  bouton_texte: content.hero_bouton_texte || 'Découvrir',
+  bouton_lien: content.hero_bouton_lien || '#services',
+};
+
+const services = content.services || [
+  { nom: 'Design Moderne', description: 'Des interfaces élégantes et intuitives', icone: '🎨', image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&q=80' },
+  { nom: 'Performance', description: 'Sites ultra-rapides optimisés pour le SEO', icone: '⚡', image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80' },
+  { nom: 'Simplicité', description: 'Gestion de contenu intuitive pour tous', icone: '✨', image: 'https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?w=600&q=80' },
+];
+const services_titre = content.services_titre || 'Nos Services';
+
+const temoignages = content.temoignages || [
+  { nom: 'Marie Dupont', texte: 'RedCMS a transformé notre façon de gérer notre site. Simple et efficace !', photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&q=80', note: 5 },
+  { nom: 'Pierre Martin', texte: 'Enfin un CMS qui allie puissance et simplicité. Je recommande vivement.', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&q=80', note: 5 },
+  { nom: 'Sophie Bernard', texte: 'L\'éditeur visuel est incroyable. Nos équipes l\'ont adopté immédiatement.', photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&q=80', note: 5 },
+];
+const temoignages_titre = content.temoignages_titre || 'Ce que disent nos clients';
+
+const features = content.features || [
+  { titre: 'Éditeur Visuel', description: 'Modifiez votre contenu directement sur la page', image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80' },
+  { titre: 'Multi-pages', description: 'Gérez autant de pages que nécessaire', image: 'https://images.unsplash.com/photo-1517292987719-0369a794ec0f?w=600&q=80' },
+  { titre: 'SEO Optimisé', description: 'Chaque page est optimisée pour Google', image: 'https://images.unsplash.com/photo-1562577309-4932fdd64cd1?w=600&q=80' },
+  { titre: 'Responsive', description: 'Parfait sur mobile, tablette et desktop', image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&q=80' },
+];
+---
+
+<Layout title={pageData?.seo?.title || 'Accueil'} description={pageData?.seo?.description}>
+  
+  <!-- Hero avec image de fond -->
+  <section 
+    class:list={["hero", { "cms-editable": isEditMode }]} 
+    style={`background-image: url('${hero.image}')`} 
+    data-cms-field="hero_image"
+  >
+    <div class="hero__overlay"></div>
+    <div class="hero__content">
+      <span class:list={["hero__badge", { "cms-editable": isEditMode }]} data-cms-field="hero_surtitre">
+        {hero.surtitre}
+      </span>
+      <h1 class:list={["hero__title", { "cms-editable": isEditMode }]} data-cms-field="hero_titre">
+        {hero.titre}
+      </h1>
+      <p class:list={["hero__description", { "cms-editable": isEditMode }]} data-cms-field="hero_description">
+        {hero.description}
+      </p>
+      <div class="hero__actions">
+        <a 
+          href={hero.bouton_lien} 
+          class:list={["btn btn-primary btn-lg", { "cms-editable": isEditMode }]} 
+          data-cms-field="hero_bouton_texte"
+        >
+          {hero.bouton_texte}
+        </a>
+        <a href="/contact" class="btn btn-outline btn-lg">Contact</a>
+      </div>
+    </div>
+    <div class="hero__scroll">
+      <span>Défiler</span>
+      <div class="hero__scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- Features Cards avec photos -->
+  <section class:list={["features", { "cms-editable": isEditMode }]} id="features" data-cms-field="features">
+    <div class="container">
+      <span class="section-label">Fonctionnalités</span>
+      <h2 class="section-title">Tout ce dont vous avez besoin</h2>
+      <div class="features__grid">
+        {features.map((feature: any, index: number) => (
+          <div class="feature-card" style={`animation-delay: ${index * 0.1}s`}>
+            <div class="feature-card__image">
+              <img src={feature.image} alt={feature.titre} loading="lazy" />
+            </div>
+            <div class="feature-card__content">
+              <h3>{feature.titre}</h3>
+              <p>{feature.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Services avec photos -->
+  <section class:list={["services", { "cms-editable": isEditMode }]} id="services" data-cms-field="services">
+    <div class="container">
+      <span class="section-label">Services</span>
+      <h2 class:list={["section-title", { "cms-editable": isEditMode }]} data-cms-field="services_titre">
+        {services_titre}
+      </h2>
+      <div class="services__grid">
+        {services.map((service: any) => (
+          <div class="service-card">
+            <div class="service-card__image">
+              {service.image ? (
+                <img src={service.image} alt={service.nom} loading="lazy" />
+              ) : (
+                <div class="service-card__icon">{service.icone || '✨'}</div>
+              )}
+            </div>
+            <div class="service-card__content">
+              <h3 class="service-card__title">{service.nom}</h3>
+              {service.description && <p class="service-card__desc">{service.description}</p>}
+              <a href="#" class="service-card__link">
+                En savoir plus
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="stats">
+    <div class="container">
+      <div class="stats__grid">
+        <div class="stat">
+          <span class="stat__number">500+</span>
+          <span class="stat__label">Sites créés</span>
+        </div>
+        <div class="stat">
+          <span class="stat__number">99%</span>
+          <span class="stat__label">Clients satisfaits</span>
+        </div>
+        <div class="stat">
+          <span class="stat__number">24/7</span>
+          <span class="stat__label">Support</span>
+        </div>
+        <div class="stat">
+          <span class="stat__number">50ms</span>
+          <span class="stat__label">Temps de réponse</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Témoignages -->
+  <section class:list={["testimonials", { "cms-editable": isEditMode }]} data-cms-field="temoignages">
+    <div class="container">
+      <span class="section-label">Témoignages</span>
+      <h2 class:list={["section-title", { "cms-editable": isEditMode }]} data-cms-field="temoignages_titre">
+        {temoignages_titre}
+      </h2>
+      <div class="testimonials__grid">
+        {temoignages.map((t: any) => (
+          <div class="testimonial-card">
+            <div class="testimonial-card__stars">
+              {[...Array(t.note || 5)].map(() => <span>⭐</span>)}
+            </div>
+            <blockquote class="testimonial-card__text">"{t.texte}"</blockquote>
+            <div class="testimonial-card__author">
+              {t.photo && <img src={t.photo} alt={t.nom} class="testimonial-card__avatar" />}
+              <span class="testimonial-card__name">{t.nom}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="container">
+      <div class="cta__content">
+        <h2>Prêt à transformer votre site ?</h2>
+        <p>Rejoignez des centaines d'entreprises qui font confiance à RedCMS</p>
+        <div class="cta__buttons">
+          <a href="/contact" class="btn btn-primary btn-lg">Démarrer maintenant</a>
+          <a href="#features" class="btn btn-ghost btn-lg">En savoir plus</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</Layout>
+
+<!-- Styles pour le mode édition -->
+<style is:global>
+  /* Les styles CMS sont gérés par le script injecté de l'éditeur */
+  
+  section.cms-editable:hover::before {
+    top: 20px;
+  }
+</style>
+
+<!-- Script pour le mode édition -->
+{isEditMode && (
+  <script is:inline>
+    console.log('[RedCMS] Edit mode activé');
+    
+    // Écouter les clics sur les éléments éditables
+    document.querySelectorAll('.cms-editable').forEach(function(el) {
+      el.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        var fieldName = el.getAttribute('data-cms-field');
+        console.log('[RedCMS] Click sur:', fieldName);
+        
+        if (fieldName) {
+          // Retirer la classe editing des autres éléments
+          document.querySelectorAll('.cms-editing').forEach(function(other) {
+            other.classList.remove('cms-editing');
+          });
+          // Ajouter la classe au nouvel élément
+          el.classList.add('cms-editing');
+          
+          // Envoyer le message au parent (VisualEditor)
+          window.parent.postMessage({
+            type: 'FIELD_CLICK',
+            fieldName: fieldName
+          }, '*');
+        }
+      });
+    });
+
+    // Écouter les messages du parent pour highlight
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'HIGHLIGHT_FIELD') {
+        console.log('[RedCMS] Highlight:', e.data.fieldName);
+        document.querySelectorAll('.cms-editing').forEach(function(el) {
+          el.classList.remove('cms-editing');
+        });
+        var target = document.querySelector('[data-cms-field="' + e.data.fieldName + '"]');
+        if (target) {
+          target.classList.add('cms-editing');
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    });
+  </script>
+)}
+
+<style>
+  /* ============================================
+     HERO
+     ============================================ */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  }
+
+  .hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.85) 100%);
+    pointer-events: none;
+  }
+
+  .hero__content {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    padding: 40px 24px;
+  }
+
+  .hero__badge {
+    display: inline-block;
+    padding: 10px 24px;
+    background: rgba(99, 102, 241, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #a5b4fc;
+    margin-bottom: 24px;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .hero__title {
+    font-size: clamp(2.5rem, 7vw, 4.5rem);
+    font-weight: 800;
+    color: white;
+    margin: 0 0 24px;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .hero__description {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0 0 40px;
+    line-height: 1.7;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero__actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .hero__scroll {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .hero__scroll-line {
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
+    animation: scroll-line 2s ease-in-out infinite;
+  }
+
+  @keyframes scroll-line {
+    0%, 100% { transform: scaleY(1); opacity: 0.5; }
+    50% { transform: scaleY(0.5); opacity: 1; }
+  }
+
+  /* ============================================
+     BUTTONS
+     ============================================ */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 28px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+
+  .btn-lg { padding: 18px 36px; font-size: 1.0625rem; }
+
+  .btn-primary {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+  }
+  .btn-primary:hover {
+    background: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(99, 102, 241, 0.4);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: white;
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  .btn-outline:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: white;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: white;
+    border-color: transparent;
+  }
+  .btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* ============================================
+     SECTIONS COMMON
+     ============================================ */
+  .section-label {
+    display: inline-block;
+    color: var(--color-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    color: var(--color-text);
+    margin: 0 0 60px;
+    text-align: center;
+    letter-spacing: -0.02em;
+  }
+
+  /* ============================================
+     FEATURES
+     ============================================ */
+  .features {
+    padding: 120px 0;
+    background: var(--color-bg);
+    text-align: center;
+  }
+
+  .features__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+
+  .feature-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fade-up 0.6s ease-out both;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+  }
+
+  .feature-card__image {
+    height: 180px;
+    overflow: hidden;
+  }
+
+  .feature-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .feature-card:hover .feature-card__image img {
+    transform: scale(1.1);
+  }
+
+  .feature-card__content {
+    padding: 24px;
+  }
+
+  .feature-card__content h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0 0 8px;
+  }
+
+  .feature-card__content p {
+    font-size: 0.9375rem;
+    color: var(--color-text-muted);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ============================================
+     SERVICES
+     ============================================ */
+  .services {
+    padding: 120px 0;
+    background: var(--color-bg-alt);
+    text-align: center;
+  }
+
+  .services__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+
+  .service-card {
+    background: white;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    transition: all 0.4s;
+    text-align: left;
+  }
+
+  .service-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  .service-card__image {
+    height: 220px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .service-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s;
+  }
+
+  .service-card:hover .service-card__image img {
+    transform: scale(1.08);
+  }
+
+  .service-card__icon {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    background: linear-gradient(135deg, var(--color-primary) 0%, #8b5cf6 100%);
+  }
+
+  .service-card__content {
+    padding: 28px;
+  }
+
+  .service-card__title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0 0 12px;
+  }
+
+  .service-card__desc {
+    font-size: 0.9375rem;
+    color: var(--color-text-muted);
+    line-height: 1.7;
+    margin: 0 0 20px;
+  }
+
+  .service-card__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    transition: gap 0.3s;
+  }
+
+  .service-card__link:hover {
+    gap: 12px;
+  }
+
+  /* ============================================
+     STATS
+     ============================================ */
+  .stats {
+    padding: 80px 0;
+    background: linear-gradient(135deg, var(--color-primary) 0%, #8b5cf6 100%);
+  }
+
+  .stats__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+    text-align: center;
+  }
+
+  .stat__number {
+    display: block;
+    font-size: 3rem;
+    font-weight: 800;
+    color: white;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .stat__label {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  /* ============================================
+     TESTIMONIALS
+     ============================================ */
+  .testimonials {
+    padding: 120px 0;
+    background: var(--color-bg);
+    text-align: center;
+  }
+
+  .testimonials__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+
+  .testimonial-card {
+    background: white;
+    border-radius: 24px;
+    padding: 36px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    text-align: left;
+    transition: all 0.3s;
+  }
+
+  .testimonial-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  .testimonial-card__stars {
+    margin-bottom: 20px;
+    font-size: 1.25rem;
+  }
+
+  .testimonial-card__text {
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--color-text);
+    margin: 0 0 24px;
+    font-style: italic;
+  }
+
+  .testimonial-card__author {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .testimonial-card__avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .testimonial-card__name {
+    font-weight: 600;
+    color: var(--color-text);
+    font-size: 1rem;
+  }
+
+  /* ============================================
+     CTA
+     ============================================ */
+  .cta {
+    padding: 120px 0;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    text-align: center;
+  }
+
+  .cta__content {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .cta h2 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    color: white;
+    margin: 0 0 16px;
+    letter-spacing: -0.02em;
+  }
+
+  .cta p {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 0 40px;
+    line-height: 1.6;
+  }
+
+  .cta__buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* ============================================
+     RESPONSIVE
+     ============================================ */
+  @media (max-width: 1024px) {
+    .features__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .services__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .stats__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .testimonials__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .features, .services, .testimonials, .cta {
+      padding: 80px 0;
+    }
+
+    .features__grid,
+    .services__grid,
+    .testimonials__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .stats__grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px;
+    }
+
+    .stat__number {
+      font-size: 2.5rem;
+    }
+
+    .hero {
+      min-height: 90vh;
+    }
+
+    .hero__scroll {
+      display: none;
+    }
+  }
+</style>
